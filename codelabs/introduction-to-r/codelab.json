@@ -1,0 +1,23 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2021-07-20T13:52:05+01:00",
+  "id": "introduction-to-r",
+  "duration": 24,
+  "title": "Introduction to R",
+  "summary": "Introduction to R",
+  "source": "introduction-to-r.md",
+  "theme": "",
+  "status": [
+    "draft"
+  ],
+  "category": [
+    "r-lang"
+  ],
+  "tags": [
+    "tutorial"
+  ],
+  "url": "introduction-to-r"
+}

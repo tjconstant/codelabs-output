@@ -1,0 +1,280 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Classification of Penguins using tidymodels</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/codelab-elements/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="classification-of-penguins-using-tidymodels"
+                  title="Classification of Penguins using tidymodels"
+                  environment="web"
+                  feedback-link="">
+    
+      <google-codelab-step label="Overview" duration="1">
+        <h2 class="checklist" is-upgraded>What you&#39;ll learn</h2>
+<ul class="checklist">
+<li>how to install <code>tidymodels</code> package and the <code>palmerpenguins</code> dataset</li>
+<li>how to plot and investigate the data</li>
+<li>how to set up a <code>tidymodels</code> workflow, recipe and model</li>
+<li>evaluating and tuning your model</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Installing required packages" duration="3">
+        <p>For this codelab, you will need to install the <code>tidymodels</code> and <code>palmerpenguins</code> packages.</p>
+<p>The <code>tidymodels</code> meta-package is actually a collection of packages for machine learning, that are designed to work together well.</p>
+<p>The <code>palmerpenguins</code> package contains a dataset of observed penguin species and their various physical characteristics. The aim of this codelab is to build a model to predict the penguin;s species based on these recorded physical characteristics.</p>
+<p>To install the required packages, using the following code in the R console.</p>
+<pre><code language="language-r" class="language-r">install.packages(c(&#34;tidymodels&#34;, &#34;palmerpenguins&#34;))
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Explore the penguins" duration="3">
+        <p>Hello</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Create Test/Train Datasets" duration="0">
+        <pre><code language="language-r" class="language-r">library(tidymodels, quietly = T)
+</code></pre>
+<pre><code>## Registered S3 method overwritten by &#39;tune&#39;:
+##   method                   from   
+##   required_pkgs.model_spec parsnip
+
+## ── Attaching packages ────────────────────────────────────── tidymodels 0.1.3 ──
+
+## ✓ broom        0.7.8      ✓ recipes      0.1.16
+## ✓ dials        0.0.9      ✓ rsample      0.1.0 
+## ✓ dplyr        1.0.7      ✓ tibble       3.1.2 
+## ✓ ggplot2      3.3.5      ✓ tidyr        1.1.3 
+## ✓ infer        0.5.4      ✓ tune         0.1.5 
+## ✓ modeldata    0.1.0      ✓ workflows    0.2.2 
+## ✓ parsnip      0.1.6      ✓ workflowsets 0.0.2 
+## ✓ purrr        0.3.4      ✓ yardstick    0.0.8
+
+## ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
+## x purrr::discard() masks scales::discard()
+## x dplyr::filter()  masks stats::filter()
+## x dplyr::lag()     masks stats::lag()
+## x recipes::step()  masks stats::step()
+## • Use tidymodels_prefer() to resolve common conflicts.
+</code></pre>
+<pre><code language="language-r" class="language-r">library(palmerpenguins, quietly = T)
+</code></pre>
+<pre><code language="language-r" class="language-r">df_split &lt;- initial_split(penguins, strata = species)
+
+print(df_split)
+</code></pre>
+<pre><code>## &lt;Analysis/Assess/Total&gt;
+## &lt;258/86/344&gt;
+</code></pre>
+<pre><code language="language-r" class="language-r">df_analysis &lt;- df_split %&gt;% analysis()
+df_assess &lt;- df_split %&gt;% assessment()
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Preprocessing" duration="4">
+        <pre><code language="language-r" class="language-r">penguins %&gt;% 
+  summarise(across(everything(), ~sum(is.na(.x))))
+</code></pre>
+<pre><code>## # A tibble: 1 x 8
+##   species island bill_length_mm bill_depth_mm flipper_length_... body_mass_g   sex
+##     &lt;int&gt;  &lt;int&gt;          &lt;int&gt;         &lt;int&gt;            &lt;int&gt;       &lt;int&gt; &lt;int&gt;
+## 1       0      0              2             2                2           2    11
+## # ... with 1 more variable: year &lt;int&gt;
+</code></pre>
+<pre><code language="language-r" class="language-r">rcp &lt;- 
+  recipe(species ~ ., data = df_analysis)
+</code></pre>
+<pre><code language="language-r" class="language-r">rcp &lt;- 
+  recipe(species ~ ., data = df_analysis) %&gt;% 
+  step_impute_mean(all_numeric_predictors()) %&gt;% 
+  step_impute_mode(all_nominal_predictors())
+</code></pre>
+<pre><code language="language-r" class="language-r">rcp %&gt;% prep() %&gt;% bake(df_analysis)
+</code></pre>
+<pre><code>## # A tibble: 258 x 8
+##    island  bill_length_mm bill_depth_mm flipper_length_... body_mass_g sex    year
+##    &lt;fct&gt;            &lt;dbl&gt;         &lt;dbl&gt;            &lt;int&gt;       &lt;int&gt; &lt;fct&gt; &lt;int&gt;
+##  1 Torger...           39.1          18.7              181        3750 male   2007
+##  2 Torger...           40.3          18                195        3250 fema...  2007
+##  3 Torger...           44.0          17.2              201        4212 male   2007
+##  4 Torger...           39.3          20.6              190        3650 male   2007
+##  5 Torger...           38.9          17.8              181        3625 fema...  2007
+##  6 Torger...           39.2          19.6              195        4675 male   2007
+##  7 Torger...           34.1          18.1              193        3475 male   2007
+##  8 Torger...           42            20.2              190        4250 male   2007
+##  9 Torger...           37.8          17.1              186        3300 male   2007
+## 10 Torger...           37.8          17.3              180        3700 male   2007
+## # ... with 248 more rows, and 1 more variable: species &lt;fct&gt;
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Choosing a Model" duration="1">
+        <pre><code language="language-r" class="language-r">classifier &lt;- 
+  decision_tree(mode = &#34;classification&#34;) %&gt;% 
+  set_engine(&#34;rpart&#34;)
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Create and Fit a Workflow" duration="3">
+        <pre><code language="language-r" class="language-r">wf &lt;-
+  workflow() %&gt;% 
+  add_recipe(rcp) %&gt;% 
+  add_model(classifier)
+</code></pre>
+<pre><code language="language-r" class="language-r">model &lt;- fit(wf, data = df_analysis)
+</code></pre>
+<pre><code language="language-r" class="language-r">model
+</code></pre>
+<pre><code>## ══ Workflow [trained] ══════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: decision_tree()
+## 
+## ── Preprocessor ────────────────────────────────────────────────────────────────
+## 2 Recipe Steps
+## 
+## • step_impute_mean()
+## • step_impute_mode()
+## 
+## ── Model ───────────────────────────────────────────────────────────────────────
+## n= 258 
+## 
+## node), split, n, loss, yval, (yprob)
+##       * denotes terminal node
+## 
+## 1) root 258 144 Adelie (0.441860465 0.197674419 0.360465116)  
+##   2) flipper_length_mm&lt; 207.5 163  49 Adelie (0.699386503 0.294478528 0.006134969)  
+##     4) bill_length_mm&lt; 44.65 116   5 Adelie (0.956896552 0.043103448 0.000000000) *
+##     5) bill_length_mm&gt;=44.65 47   4 Chinstrap (0.063829787 0.914893617 0.021276596) *
+##   3) flipper_length_mm&gt;=207.5 95   3 Gentoo (0.000000000 0.031578947 0.968421053) *
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Evaluate the Model" duration="4">
+        <pre><code language="language-r" class="language-r">df_pred &lt;-
+  bind_cols(
+    df_assess,
+    predict(model, new_data = df_assess)
+    )
+</code></pre>
+<pre><code language="language-r" class="language-r">df_pred %&gt;% 
+  accuracy(truth = species, estimate = .pred_class)
+</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##   .metric  .estimator .estimate
+##   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+## 1 accuracy multiclass     0.930
+</code></pre>
+<pre><code language="language-r" class="language-r">df_pred %&gt;% 
+  conf_mat(truth = species, estimate = .pred_class)
+</code></pre>
+<pre><code>##            Truth
+## Prediction  Adelie Chinstrap Gentoo
+##   Adelie        36         1      1
+##   Chinstrap      0        15      1
+##   Gentoo         2         1     29
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Improving the Results" duration="5">
+        <h2 is-upgraded>Better Preprocessing</h2>
+<pre><code language="language-r" class="language-r">rcp &lt;- 
+  recipe(species ~ ., data = df_analysis) %&gt;% 
+  step_impute_mean(all_numeric_predictors()) %&gt;% 
+  step_impute_mode(all_nominal_predictors()) %&gt;% 
+  themis::step_upsample(species)
+</code></pre>
+<pre><code>## Registered S3 methods overwritten by &#39;themis&#39;:
+##   method                  from   
+##   bake.step_downsample    recipes
+##   bake.step_upsample      recipes
+##   prep.step_downsample    recipes
+##   prep.step_upsample      recipes
+##   tidy.step_downsample    recipes
+##   tidy.step_upsample      recipes
+##   tunable.step_downsample recipes
+##   tunable.step_upsample   recipes
+</code></pre>
+<h2 is-upgraded>A Different Model</h2>
+<pre><code language="language-r" class="language-r">classifier &lt;- rand_forest(mode = &#34;classification&#34;)
+</code></pre>
+<pre><code language="language-r" class="language-r">wf &lt;- 
+  workflow() %&gt;% 
+  add_recipe(rcp) %&gt;% 
+  add_model(classifier)
+
+model &lt;- fit(wf, data = df_analysis)
+</code></pre>
+<pre><code>## Warning: Engine set to `ranger`.
+</code></pre>
+<h2 is-upgraded>Assess</h2>
+<pre><code language="language-r" class="language-r">df_pred &lt;-
+  bind_cols(
+    df_assess,
+    predict(model, new_data = df_assess)
+    )
+
+df_pred %&gt;% 
+  accuracy(truth = species, estimate = .pred_class)
+</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##   .metric  .estimator .estimate
+##   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+## 1 accuracy multiclass     0.988
+</code></pre>
+<pre><code language="language-r" class="language-r">df_pred %&gt;% 
+  conf_mat(truth = species, estimate = .pred_class)
+</code></pre>
+<pre><code>##            Truth
+## Prediction  Adelie Chinstrap Gentoo
+##   Adelie        38         0      1
+##   Chinstrap      0        17      0
+##   Gentoo         0         0     30
+</code></pre>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/codelab-elements/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/prettify.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>

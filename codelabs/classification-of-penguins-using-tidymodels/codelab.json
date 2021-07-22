@@ -1,0 +1,24 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2021-07-13T23:50:19+01:00",
+  "id": "classification-of-penguins-using-tidymodels",
+  "duration": 24,
+  "title": "Classification of Penguins using tidymodels",
+  "authors": "Tom",
+  "summary": "Classification of penguins using tidymodels",
+  "source": "penguins.md",
+  "theme": "",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "r-lang"
+  ],
+  "tags": [
+    "tutorial"
+  ],
+  "url": "classification-of-penguins-using-tidymodels"
+}

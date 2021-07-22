@@ -1,0 +1,267 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Introduction to R</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/codelab-elements/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="introduction-to-r"
+                  title="Introduction to R"
+                  environment="web"
+                  feedback-link="">
+    
+      <google-codelab-step label="What is R?" duration="2">
+        <p>R is a programming language for statistical computing. It currently ranks as the 12th most popular language in use today.</p>
+<p>R&#39;s focus is on statistics, data manipulation and visualization. It has a flourishing, friendly community supporting it with thousands of open-source add-ons (‘packages&#39;) with a particular lean towards data science and analytics.</p>
+<p>R is free, and available from the <a href="https://cran.r-project.org" target="_blank">Comprehensive R Archive Network</a> (CRAN). This article will use R version 4.1.</p>
+<p>For developing code and managing your data science projects, I highly recommend the open source <a href="https://www.rstudio.com/products/rstudio/" target="_blank">RStudio</a> which provides an excellent integrated development environment (IDE).</p>
+<p>If you&#39;d like to avoid all the bother of installing R and RStudio, you can try them both out for free on the web using <a href="https://www.rstudio.com/products/cloud/" target="_blank">RStudio CLoud</a>, where you can program right inside your browser.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="First Steps" duration="2">
+        <p>Within R Studio, you are provided with a console where you can type R commands directly and then immediately see the results.</p>
+<p>Within this console, try typing a simple sum as observe the results like so,</p>
+<pre><code language="language-r" class="language-r">1+2
+</code></pre>
+<pre><code>[1] 3
+</code></pre>
+<p>Notice R prints the correct answer <code>3</code> to the console, with a bracketed element number <code>[1]</code>.</p>
+<p>In R, all results are returned as vectors, which can contain multiple values. You can <strong>combine</strong> multiple values into a longer vector using the <code>c()</code> function,</p>
+<pre><code language="language-r" class="language-r">c(1,2,3)
+</code></pre>
+<pre><code>[1] 1 2 3
+</code></pre>
+<aside class="special"><p>  There are six basic datatypes that vectors can contain. These types are &#34;logical&#34;, &#34;integer&#34;, &#34;numeric&#34;, &#34;complex&#34;, &#34;character&#34; and &#34;raw&#34;. R refers to these as &#34;Atomic&#34; modes, since they cannot be broken down into any more basic forms. </p>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Variables" duration="10">
+        <h2 is-upgraded>Assignment</h2>
+<p>To store a vector inside of a named variable, R uses the <code><-</code> operator. For example, to store the character vector <code>"Hello, World!"</code> in a variable called <code>welcome</code>, you would type this,</p>
+<pre><code language="language-r" class="language-r">welcome &lt;- &#34;Hello, World!&#34;
+</code></pre>
+<aside class="special"><p>   Some people might wonder here why R uses `&lt;-` rather than `=` like most other programming languages do. The answer is the authors of R wanted to emphasize that assignment (storing a value) isn&#39;t the same as equality (this is equal to this). It&#39;s a small point, and after a few minutes of coding `&lt;-` will seem perfectly natural. Happily, if you insist on using `=`, it&#39;ll work just fine in **most** cases. </p>
+</aside>
+<p>To see the values stored in your <code>welcome</code> variable, you can use the <code>print()</code> function.</p>
+<pre><code language="language-r" class="language-r">print(welcome)
+</code></pre>
+<pre><code>[1] &#34;Hello, World!&#34;
+</code></pre>
+<h2 is-upgraded>Element Addresses</h2>
+<p>When storing multiple values in a vector, you may wish to subset that vector and access single or a subset of elements within it.</p>
+<p>Lets set up a character vector called <code>fruit</code></p>
+<pre><code language="language-r" class="language-r">fruit &lt;- c(&#34;Apple&#34;, &#34;Pear&#34;, &#34;Orange&#34;)
+
+print(fruit)
+</code></pre>
+<pre><code>[1] &#34;Apple&#34;  &#34;Pear&#34;   &#34;Orange&#34;
+</code></pre>
+<p>To access elements within the vector, we use the <code>[_index]</code> operator. In R, unlike in python, the index of the vector starts at <code>1</code> (Python starts at <code>0</code>). So to access the second element you would type,</p>
+<pre><code language="language-r" class="language-r">fruit[2]
+</code></pre>
+<pre><code>[1] &#34;Pear&#34;
+</code></pre>
+<h2 is-upgraded>Data Frames</h2>
+<p>So far, we have just dealt with 1-dimensional vectors, but in data science we most often deal with tabulated data (like a spreadsheet) with rows and columns.</p>
+<p>The <code>data.frame</code> object is the best way to create or store such tabular data. Lets create a few more variables and also a <code>fruit_shop</code> data frame.</p>
+<pre><code language="language-r" class="language-r">fruit_colour &lt;- c(&#34;Green&#34;, &#34;Green&#34;, &#34;Orange&#34;)
+fruit_price &lt;- c(0.30, 0.50, 0.75)
+
+fruit_shop &lt;- 
+  data.frame(
+    fruit_type = fruit,
+    fruit_colour = fruit_colour,
+    fruit_price = fruit_price
+  )
+
+print(fruit_shop)
+</code></pre>
+<pre><code>  fruit_type fruit_colour fruit_price
+1      Apple        Green        0.30
+2       Pear        Green        0.50
+3     Orange       Orange        0.75
+</code></pre>
+<p>Notice R ignores white space so you&#39;re free to break up code into multiple lines to help readability.</p>
+<p>To access individual elements of a 2D object such as a <code>data.frame</code>, you can use the same operator <code>[]</code> specifying the rows and columns <code>[row, column]</code></p>
+<pre><code language="language-r" class="language-r">fruit_shop[1,3]
+</code></pre>
+<pre><code>[1] 0.3
+</code></pre>
+<p>To choose a single column but all the rows, just omit the index for the row,</p>
+<pre><code language="language-r" class="language-r">fruit_shop[,2]
+</code></pre>
+<pre><code>[1] &#34;Green&#34;  &#34;Green&#34;  &#34;Orange&#34;
+</code></pre>
+<p>For a range of values, you can use the shorthand <code>n:m</code> which produces a vector of integers from <code>n</code> to <code>m</code> inclusive,</p>
+<pre><code language="language-r" class="language-r">fruit_shop[1:2,] # First two rows, all columns
+</code></pre>
+<pre><code>  fruit_type fruit_colour fruit_price
+1      Apple        Green         0.3
+2       Pear        Green         0.5
+</code></pre>
+<aside class="special"><p>   Notice you can use `#` to indicate comments in your code. These are useful and it&#39;s very good practice to comment your code as you go so someone else (or you in a few months!) remember what you were doing and why. Comments are ignored on execution so they don&#39;t interfere with how the code will run. </p>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Plotting Data" duration="10">
+        <h2 is-upgraded>Base Plotting</h2>
+<p>R&#39;s inbuilt <code>plot()</code> function can create visualizations of your data. It&#39;s pretty good, but you should be aware there are some far more powerful graphing options available via packages that we&#39;ll cover later.</p>
+<p>Lets plot a data frame. R has some in-built data sets that are really useful for quick experiments. Lets try plotting one of these in-built data frames, the <code>Orange</code> data set. This data set contains observations of several Orange trees over time, and their trunk circumference. We can take a look by printing the Orange data set to the console.</p>
+<pre><code language="language-r" class="language-r">Orange
+</code></pre>
+<pre><code>   Tree  age circumference
+1     1  118            30
+2     1  484            58
+3     1  664            87
+4     1 1004           115
+5     1 1231           120
+6     1 1372           142
+7     1 1582           145
+8     2  118            33
+9     2  484            69
+10    2  664           111
+11    2 1004           156
+12    2 1231           172
+13    2 1372           203
+14    2 1582           203
+15    3  118            30
+16    3  484            51
+17    3  664            75
+18    3 1004           108
+19    3 1231           115
+20    3 1372           139
+21    3 1582           140
+22    4  118            32
+23    4  484            62
+24    4  664           112
+25    4 1004           167
+26    4 1231           179
+27    4 1372           209
+28    4 1582           214
+29    5  118            30
+30    5  484            49
+31    5  664            81
+32    5 1004           125
+33    5 1231           142
+34    5 1372           174
+35    5 1582           177
+</code></pre>
+<p>We see this data frame has three columns, a <code>Tree</code> id that identifies which tree, the <code>age</code> of the tree (in days), and the tree&#39;s <code>circumfrance</code>. Tosee information on the data set, or indeed any function, you can quickly bring up the help by typing <code>?Orange</code>.</p>
+<p>Lets plot this data frame so see the relationship between age and circumfrance. For this we&#39;ll select column 2 for the x-axis and column 3 for the y axis.</p>
+<pre><code language="language-r" class="language-r">plot(Orange[,2], Orange[,3])
+</code></pre>
+<p><img src="img/7cfb336dc3e4bea.png"> Not a bad start, but we can do better. Firstly, lets make our code more readable by using a different way of selecting columns.</p>
+<p>For data frames, we can use the <code>$</code> operator to refer to a column by it&#39;s name, rather than it&#39;s index.</p>
+<pre><code language="language-r" class="language-r">plot(Orange$age, Orange$circumference)
+</code></pre>
+<p class="image-container"><img src="img/8e0285fb54fe9165.png"></p>
+<p>Ok, not much change to the graph, except the axis labels are a little more helpful. Now, lets colour the points by the tree which the observation came from. We do this by passing the <code>col =</code> parameter to the <code>plot()</code> function.</p>
+<pre><code language="language-r" class="language-r">plot(Orange$age, Orange$circumference, col = Orange$Tree)
+</code></pre>
+<p class="image-container"><img src="img/570f774aa6e01c73.png"></p>
+<p>There are lots of other base plotting functions in R, such as <code>barplot()</code>, <code>boxplot()</code> and <code>hist()</code>. However, the majority of data scientists forego the base plotting in favor of an open source alternative called ‘ggplot&#39;.</p>
+<h2 is-upgraded>ggplot</h2>
+<p>The <code>ggplot</code> package stands for the <strong>g</strong>rammar of <strong>g</strong>raphics plots. It&#39;s design is based on a book by Leland Wilkinson called, unsurprisingly, <a href="https://www.amazon.com/Grammar-Graphics-Statistics-Computing/dp/0387245448/ref=as_li_ss_tl" target="_blank">The Grammar of Graphics</a>. It was created by <a href="http://hadley.nz" target="_blank">Hadley Wickham</a>, who is now the chief data scientist as RStudio, and is one of the R community&#39;s most prolific contributors.</p>
+<aside class="special"><p>  The [ggplot website](https://ggplot2.tidyverse.org) is a fantasitc source of how to use the package with very clear documentation and examples. </p>
+</aside>
+<p>To use a package, we must first install it. To install packages into R, you use the <code>install_packages()</code> function.</p>
+<pre><code language="language-r" class="language-r">install.packages(&#34;ggplot2&#34;)
+</code></pre>
+<p>We then need to load a package into our R session, which we do like so,</p>
+<pre><code language="language-r" class="language-r">library(ggplot2)
+</code></pre>
+<p>Lets explore how ggplot works. The philosophy of ggplot is that a plot is made of elements that should be separately controlled. We have things like the scales on the axis, the geometries we use to represent the data (such as points for scatter plots, lines for trends or bars for barcharts),</p>
+<p>Lets start by plotting our Oranges,</p>
+<pre><code language="language-r" class="language-r">library(ggplot2)
+
+ggplot(data = Orange, mapping = aes(x = age, y = circumference, colour = Tree)) +
+  geom_point() +
+  geom_line()
+</code></pre>
+<p class="image-container"><img src="img/fa1faa3409580015.png"></p>
+<p>Lets break down this bit of code.</p>
+<ul>
+<li>In the first line of this call, the first argument we pass to <code>ggplot()</code> is always the data, the second argument wrapped in the <code>aes()</code> function are called the aesthetics, which define how the data is mapped to elements of the chart.</li>
+<li>We&#39;ve mapped here the <code>x</code> values to <code>age</code>, the <code>y</code> values to <code>circumference</code>, and the <code>colour</code> values to the <code>Tree</code>. (The american spelling <code>color=</code> is also acceptable).</li>
+<li>In the subsequent lines, we have added using the <code>+</code> operator different geometries to represent our data, such as points and lines. These points and lines inherit the aesthetics, so they know what x, y, and colour values they should be using to be consistent with the data.</li>
+</ul>
+<aside class="special"><p>    It&#39;s also worth noting that when we passed the variables to the `aes()` function, we did so without quoting them (`age` instead of `&#34;age&#34;`). For people coming from other programming languages this quirk of R can be quite shocking. How does R know that `age` is a label and not a variable? What happens if I have a variable `age &lt;- &#34;Tree&#34;`? This comes down to a feature of R known as lazy evaluation. R doesn&#39;t attempt to execute or read a variable until it absolutely has too. Programmers like Hadley Wickham have used this property of R extensively in their packages to make code more human-readable and friendly. </p>
+</aside>
+<p>ggplot is far more powerful that base graphics when plotting complex charts thanks to this simple separation between the data and the chart elements.</p>
+<p>Lets try a more complex examples using the example data set from ggplot, <code>diamonds</code>.</p>
+<pre><code language="language-r" class="language-r">ggplot(
+  data = diamonds,
+  mapping = aes(
+    x = price,
+    fill = cut
+  ) 
+) +
+  geom_histogram()
+</code></pre>
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+</code></pre>
+<p class="image-container"><img src="img/dcb0d3e1bae122cb.png"></p>
+<p>In this example, we mapped the price of a set of diamonds to x, and the fill colour to the quality of the diamond&#39;s cut. We then added a histogram geometry to get the resulting histogram plot.</p>
+<p>Lets try mapping other aesthetics,</p>
+<pre><code language="language-r" class="language-r">ggplot(
+  data = diamonds,
+  mapping = aes(x = carat, y = price, color = color, shape = cut)
+  ) +
+  geom_point()
+</code></pre>
+<pre><code>Warning: Using shapes for an ordinal variable is not advised
+</code></pre>
+<p class="image-container"><img src="img/3f3b113820c274f5.png"></p>
+<p>Here we&#39;ve mapped <code>x</code>, <code>y</code>, <code>shape</code>, <code>colour</code> and the quality of <code>cut</code> to various aesthetics that have then been used in the <code>geom_point()</code> geometry.</p>
+<p>Lets just quickly this plot up by adding labels and a theme</p>
+<pre><code language="language-r" class="language-r">ggplot(
+  data = diamonds,
+  mapping = aes(x = carat, y = price, color = color, shape = cut)
+  ) +
+  geom_point() +
+  labs(
+    title = &#34;The Diamonds Dataset&#34;,
+    subtitle = &#34;An Example Plot for Intro to R&#34;,
+  ) +
+  theme_light()
+</code></pre>
+<pre><code>Warning: Using shapes for an ordinal variable is not advised
+</code></pre>
+<p class="image-container"><img src="img/348d5b7b4fafd9f6.png"></p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/codelab-elements/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/prettify.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>
