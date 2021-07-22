@@ -2,13 +2,14 @@ summary: Introduction to R
 id: introduction-to-r
 categories: r-lang
 tags: tutorial
-status: Draft  
+status: Published
 authors: Tom
 Feedback Link: <http://data.tjconstant.com>
 
 # Introduction to R
 
 ## What is R?
+
 Duration: 2
 
 R is a programming language for statistical computing. It currently
@@ -34,13 +35,14 @@ CLoud](https://www.rstudio.com/products/cloud/), where you can program
 right inside your browser.
 
 ## First Steps
+
 Duration: 2
 
 Within R Studio, you are provided with a console where you can type R
-commands directly and then immediately see the results.
+commands directly and then see the results.
 
-Within this console, try typing a simple sum as observe the results like
-so,
+Within this console, try typing a simple sum and observe the results
+like so,
 
 ``` r
 1+2
@@ -61,7 +63,7 @@ c(1,2,3)
 
     [1] 1 2 3
 
-<aside class="positive"> 
+<aside class="positive">
 There are six basic datatypes that vectors can contain. These types are
 “logical”, “integer”, “numeric”, “complex”, “character” and “raw”. R
 refers to these as “Atomic” modes, since they cannot be broken down into
@@ -69,6 +71,7 @@ any more basic forms.
 </aside>
 
 ## Variables
+
 Duration: 10
 
 ### Assignment
@@ -81,13 +84,13 @@ variable called `welcome`, you would type this,
 welcome <- "Hello, World!"
 ```
 
-<aside class="positive">  
+<aside class="positive">
 Some people might wonder here why R uses `<-` rather than `=` like most
 other programming languages do. The answer is the authors of R wanted to
 emphasize that assignment (storing a value) isn’t the same as equality
 (this is equal to this). It’s a small point, and after a few minutes of
 coding `<-` will seem perfectly natural. Happily, if you insist on using
-`=`, it’ll work just fine in **most** cases.
+`=`, it’ll work just fine in most cases.
 </aside>
 
 To see the values stored in your `welcome` variable, you can use the
@@ -186,7 +189,7 @@ fruit_shop[1:2,] # First two rows, all columns
     1      Apple        Green         0.3
     2       Pear        Green         0.5
 
-<aside class="positive">  
+<aside class="positive">
 Notice you can use `#` to indicate comments in your code. These are
 useful and it’s very good practice to comment your code as you go so
 someone else (or you in a few months!) remember what you were doing and
@@ -194,7 +197,281 @@ why. Comments are ignored on execution so they don’t interfere with how
 the code will run.
 </aside>
 
+## Data Wrangling
+
+Duration: 15
+
+Data wrangling in R is the process of importing, analyzing, cleaning and
+summarizing data. In this section we will take a look at a sample
+dataset contaning aircraft flights from NYC.
+
+For this section you will need to install the `nycflights13` package,
+which contains the data, and the `dplyr` package for data manipulation.
+
+You can install both these packages with the following command,
+
+``` r
+install.packages(c("dplyr", "nycflights13"))
+```
+
+We will the load these packages into our R session
+
+
+    Attaching package: 'dplyr'
+
+    The following objects are masked from 'package:stats':
+
+        filter, lag
+
+    The following objects are masked from 'package:base':
+
+        intersect, setdiff, setequal, union
+
+And we can take a look at the flights data by printing it to the console
+
+``` r
+print(flights)
+```
+
+    # A tibble: 336,776 x 19
+        year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+       <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>
+     1  2013     1     1      517            515         2      830            819
+     2  2013     1     1      533            529         4      850            830
+     3  2013     1     1      542            540         2      923            850
+     4  2013     1     1      544            545        -1     1004           1022
+     5  2013     1     1      554            600        -6      812            837
+     6  2013     1     1      554            558        -4      740            728
+     7  2013     1     1      555            600        -5      913            854
+     8  2013     1     1      557            600        -3      709            723
+     9  2013     1     1      557            600        -3      838            846
+    10  2013     1     1      558            600        -2      753            745
+    # … with 336,766 more rows, and 11 more variables: arr_delay <dbl>,
+    #   carrier <chr>, flight <int>, tailnum <chr>, origin <chr>, dest <chr>,
+    #   air_time <dbl>, distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
+
+Although `flights` is a type of data frame, the output to the console is
+much neater than normal. This is because `flights` is actually a type of
+data frame called a `tibble`. The distinction doesn’t make any practical
+difference to our analysis, for our needs it just prints tidier output
+to the console.
+
+### Selecting and Filtering
+
+With `dplyr`, we can select a subset of columns using the `select`
+function. Lets select the month and the year from the dataset like so,
+
+``` r
+select(.data = flights, month, year)
+```
+
+    # A tibble: 336,776 x 2
+       month  year
+       <int> <int>
+     1     1  2013
+     2     1  2013
+     3     1  2013
+     4     1  2013
+     5     1  2013
+     6     1  2013
+     7     1  2013
+     8     1  2013
+     9     1  2013
+    10     1  2013
+    # … with 336,766 more rows
+
+We can also use `dplyr`s `filter()` function to filter the results to
+some logcial condition. For example, we can filter to only flights in
+January like so,
+
+``` r
+filter(.data = flights, month == 1)
+```
+
+    # A tibble: 27,004 x 19
+        year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+       <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>
+     1  2013     1     1      517            515         2      830            819
+     2  2013     1     1      533            529         4      850            830
+     3  2013     1     1      542            540         2      923            850
+     4  2013     1     1      544            545        -1     1004           1022
+     5  2013     1     1      554            600        -6      812            837
+     6  2013     1     1      554            558        -4      740            728
+     7  2013     1     1      555            600        -5      913            854
+     8  2013     1     1      557            600        -3      709            723
+     9  2013     1     1      557            600        -3      838            846
+    10  2013     1     1      558            600        -2      753            745
+    # … with 26,994 more rows, and 11 more variables: arr_delay <dbl>,
+    #   carrier <chr>, flight <int>, tailnum <chr>, origin <chr>, dest <chr>,
+    #   air_time <dbl>, distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
+
+<aside class="positive">
+
+Notice when we passed the variables to the `select()` and `filter()`
+functions, we did so without quoting them (`month` instead of
+`"month"`).
+
+For people coming from other programming languages this quirk of R can
+be quite shocking. How does R know that `month` is a label and not a
+variable? or a function?
+
+This comes down to a feature of R known as lazy evaluation. R doesn’t
+attempt to execute or read a variable until it absolutely has too.
+Programmers like Hadley Wickham have used this property of R extensively
+in their packages to make code more human-readable and friendly.
+</aside>
+
+### Pipes
+
+Say we wanted to combine the last two steps to both selecitng only a few
+columns and then filtering. TO achieve this, we could write,
+
+``` r
+filter(select(.data = flights, month, year), month == 1)
+```
+
+    # A tibble: 27,004 x 2
+       month  year
+       <int> <int>
+     1     1  2013
+     2     1  2013
+     3     1  2013
+     4     1  2013
+     5     1  2013
+     6     1  2013
+     7     1  2013
+     8     1  2013
+     9     1  2013
+    10     1  2013
+    # … with 26,994 more rows
+
+However, you can see that this isn’t very human-readable. It’s not too
+clear what exactly is happening, or what steps are performed in what
+order. You can imagine with complex data wrangling, this way of writing
+code will soon become unreadable and hard to maintain.
+
+This is where the pipe operator (`%>%`) comes in handy. The pipe takes
+the result of the expression on the left hand side and passes it as the
+first argument to the right hand side. So the same set of calls becomes,
+
+``` r
+flights %>%
+  select(month, year) %>%
+  filter(month == 1)
+```
+
+    # A tibble: 27,004 x 2
+       month  year
+       <int> <int>
+     1     1  2013
+     2     1  2013
+     3     1  2013
+     4     1  2013
+     5     1  2013
+     6     1  2013
+     7     1  2013
+     8     1  2013
+     9     1  2013
+    10     1  2013
+    # … with 26,994 more rows
+
+Here we take `flights` and pipe it to the `select()` function. The first
+argument for select is `.data =` so flights is passed as this parameter.
+Within `dplyr`, all the data functions accept `.data =` first, so the
+pipe is extremely powerful to chain commands together.
+
+### Mutate
+
+To mutate a data.frame is to change it by adding an additional column.
+The data for this new column can be a new vector, or it can be some
+calculation / operation on existing columns.
+
+Lets add a column called `distance_km` than converts the `distance`
+column (in miles) to a distance in kilometers,
+
+``` r
+flights %>% 
+  select(carrier, distance) %>% 
+  mutate(distance_km = 1.61 * distance)
+```
+
+    # A tibble: 336,776 x 3
+       carrier distance distance_km
+       <chr>      <dbl>       <dbl>
+     1 UA          1400       2254 
+     2 UA          1416       2280.
+     3 AA          1089       1753.
+     4 B6          1576       2537.
+     5 DL           762       1227.
+     6 UA           719       1158.
+     7 B6          1065       1715.
+     8 EV           229        369.
+     9 B6           944       1520.
+    10 AA           733       1180.
+    # … with 336,766 more rows
+
+### Summarise
+
+We may also want to summarise data by performing some aggregations on
+the data. For this, we use the `summarise()` function.
+
+``` r
+flights %>% 
+  select(carrier, distance) %>% 
+  mutate(distance_km = 1.61 * distance) %>% 
+  summarise(avg_distance = mean(distance_km))
+```
+
+    # A tibble: 1 x 1
+      avg_distance
+             <dbl>
+    1        1674.
+
+In this case, we summarise all the rows to find the mean distance in
+kilometers for the whole dataset.
+
+## Groups
+
+So far, we have selected, filtered and summarised the `flights` dataset
+as a whole. However, we may wish to perform these operations on groups
+of data within the dataset.
+
+For example, what is the average distance per company? `dplyr` lets you
+group the dataset based on one or more of it’s columns, and then all
+subsequent ooperations will be done group-by-group.
+
+As an example, lets get the mean distance per carrier,
+
+``` r
+flights %>% 
+  select(carrier, distance) %>% 
+  mutate(distance_km = 1.61 * distance) %>% 
+  group_by(carrier) %>% 
+  summarise(avg_distance = mean(distance_km))
+```
+
+    # A tibble: 16 x 2
+       carrier avg_distance
+       <chr>          <dbl>
+     1 9E              854.
+     2 AA             2158.
+     3 AS             3867.
+     4 B6             1720.
+     5 DL             1991.
+     6 EV              906.
+     7 F9             2608.
+     8 FL             1070.
+     9 HA             8023.
+    10 MQ              917.
+    11 OO              806.
+    12 UA             2462.
+    13 US              891.
+    14 VX             4024.
+    15 WN             1604.
+    16 YV              604.
+
 ## Plotting Data
+
 Duration: 10
 
 ### Base Plotting
@@ -263,9 +540,10 @@ for the y axis.
 plot(Orange[,2], Orange[,3])
 ```
 
-![](assets/unnamed-chunk-12-1.png) Not a bad start, but we can do
-better. Firstly, lets make our code more readable by using a different
-way of selecting columns.
+![](assets/unnamed-chunk-22-1.png)
+
+Not a bad start, but we can do better. Firstly, lets make our code more
+readable by using a different way of selecting columns.
 
 For data frames, we can use the `$` operator to refer to a column by
 it’s name, rather than it’s index.
@@ -274,7 +552,7 @@ it’s name, rather than it’s index.
 plot(Orange$age, Orange$circumference)
 ```
 
-![](assets/unnamed-chunk-13-1.png)
+![](assets/unnamed-chunk-23-1.png)
 
 Ok, not much change to the graph, except the axis labels are a little
 more helpful. Now, lets colour the points by the tree which the
@@ -285,7 +563,7 @@ the `plot()` function.
 plot(Orange$age, Orange$circumference, col = Orange$Tree)
 ```
 
-![](assets/unnamed-chunk-14-1.png)
+![](assets/unnamed-chunk-24-1.png)
 
 There are lots of other base plotting functions in R, such as
 `barplot()`, `boxplot()` and `hist()`. However, the majority of data
@@ -302,8 +580,8 @@ It was created by [Hadley Wickham](http://hadley.nz), who is now the
 chief data scientist as RStudio, and is one of the R community’s most
 prolific contributors.
 
-<aside class="positive"> 
-The [ggplot website](https://ggplot2.tidyverse.org) is a fantasitc
+<aside class="positive">
+The ggplot website (<https://ggplot2.tidyverse.org>) is a fantastic
 source of how to use the package with very clear documentation and
 examples.
 </aside>
@@ -337,7 +615,7 @@ ggplot(data = Orange, mapping = aes(x = age, y = circumference, colour = Tree)) 
   geom_line()
 ```
 
-![](assets/unnamed-chunk-17-1.png)
+![](assets/unnamed-chunk-27-1.png)
 
 Lets break down this bit of code.
 
@@ -354,7 +632,7 @@ Lets break down this bit of code.
     what x, y, and colour values they should be using to be consistent
     with the data.
 
-<aside class="positive">   
+<aside class="positive">
 It’s also worth noting that when we passed the variables to the `aes()`
 function, we did so without quoting them (`age` instead of `"age"`). For
 people coming from other programming languages this quirk of R can be
@@ -386,7 +664,7 @@ ggplot(
 
     `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](assets/unnamed-chunk-18-1.png)
+![](assets/unnamed-chunk-28-1.png)
 
 In this example, we mapped the price of a set of diamonds to x, and the
 fill colour to the quality of the diamond’s cut. We then added a
@@ -404,7 +682,7 @@ ggplot(
 
     Warning: Using shapes for an ordinal variable is not advised
 
-![](assets/unnamed-chunk-19-1.png)
+![](assets/unnamed-chunk-29-1.png)
 
 Here we’ve mapped `x`, `y`, `shape`, `colour` and the quality of `cut`
 to various aesthetics that have then been used in the `geom_point()`
@@ -427,4 +705,4 @@ ggplot(
 
     Warning: Using shapes for an ordinal variable is not advised
 
-![](assets/unnamed-chunk-20-1.png)
+![](assets/unnamed-chunk-30-1.png)

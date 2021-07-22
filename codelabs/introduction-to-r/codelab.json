@@ -3,15 +3,16 @@
   "format": "html",
   "prefix": "https://storage.googleapis.com",
   "mainga": "UA-49880327-14",
-  "updated": "2021-07-20T13:52:05+01:00",
+  "updated": "2021-07-22T16:08:03+01:00",
   "id": "introduction-to-r",
-  "duration": 24,
+  "duration": 39,
   "title": "Introduction to R",
+  "authors": "Tom",
   "summary": "Introduction to R",
   "source": "introduction-to-r.md",
   "theme": "",
   "status": [
-    "draft"
+    "published"
   ],
   "category": [
     "r-lang"
