@@ -430,7 +430,7 @@ flights %>%
 In this case, we summarise all the rows to find the mean distance in
 kilometers for the whole dataset.
 
-## Groups
+### Groups
 
 So far, we have selected, filtered and summarised the `flights` dataset
 as a whole. However, we may wish to perform these operations on groups
@@ -706,3 +706,291 @@ ggplot(
     Warning: Using shapes for an ordinal variable is not advised
 
 ![](assets/unnamed-chunk-30-1.png)
+
+## Machine Learning
+
+In this section we are going to demonstrate the machine learning
+capabilities of R using the `tidymodels` package.
+
+The `tidymodels` package is relatively new, and is a ‘meta package’ that
+wraps up lots of machine learning packages with a common API.
+
+This makes switching between models and methods really easy, even if the
+underlying packages they are based on behave very differently. Most of
+this functionality is actually provided by a `tidymodels` package,
+`parsnip`.
+
+### Get the Data
+
+Duration 15
+
+For this simple example to demonstrate the power of ML in R, I have
+prepared and pre-processed some data for us. We will be using a
+prepossessed version of the
+[`palmerpenguins`](https://allisonhorst.github.io/palmerpenguins/)
+dataset.
+
+The pre-processed versions we will be using can be downloaded from
+gitlab. There are two files, one for analysis/training the model, and
+one file of independent observations for assessment/testing the model.
+
+-   [Download Analysis
+    Dataset](https://raw.githubusercontent.com/tjconstant/penguins/main/penguins_analysis.csv)
+-   [Download Assessment
+    Dataset](https://raw.githubusercontent.com/tjconstant/penguins/main/penguins_assessment.csv)
+
+Alternatively, and encouraged, you can load these files directly into R
+using their URLS like so
+
+``` r
+library(readr)
+
+df_analysis <-
+  read_csv("https://raw.githubusercontent.com/tjconstant/penguins/main/penguins_analysis.csv") %>%
+  mutate(species = as.factor(species))
+```
+
+    Rows: 258 Columns: 8
+
+    ── Column specification ────────────────────────────────────────────────────────
+    Delimiter: ","
+    chr (3): island, sex, species
+    dbl (5): bill_length_mm, bill_depth_mm, flipper_length_mm, body_mass_g, year
+
+
+    ℹ Use `spec()` to retrieve the full column specification for this data.
+    ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+df_assesment <-
+  read_csv("https://raw.githubusercontent.com/tjconstant/penguins/main/penguins_assessment.csv") %>%
+  mutate(species = as.factor(species))
+```
+
+    Rows: 86 Columns: 8
+
+    ── Column specification ────────────────────────────────────────────────────────
+    Delimiter: ","
+    chr (3): island, sex, species
+    dbl (5): bill_length_mm, bill_depth_mm, flipper_length_mm, body_mass_g, year
+
+
+    ℹ Use `spec()` to retrieve the full column specification for this data.
+    ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+We have also changed the `species` column type to a `factor` rather than
+a character. Factors are useful for categorical types of data and is
+expected by most of `tidymodels` functions.
+
+### Choosing a Classifier
+
+For starters, we are going to use a Decision Tree classifier to attempt
+to predict the species of the penguins based on the other variables.
+
+To set up a classifier we will create a model object like this,
+
+``` r
+library(tidymodels, quietly = TRUE)
+```
+
+    Registered S3 method overwritten by 'tune':
+      method                   from   
+      required_pkgs.model_spec parsnip
+
+    ── Attaching packages ────────────────────────────────────── tidymodels 0.1.3 ──
+
+    ✓ broom        0.7.8      ✓ rsample      0.1.0 
+    ✓ dials        0.0.9      ✓ tibble       3.1.2 
+    ✓ infer        0.5.4      ✓ tidyr        1.1.3 
+    ✓ modeldata    0.1.1      ✓ tune         0.1.6 
+    ✓ parsnip      0.1.7      ✓ workflows    0.2.3 
+    ✓ purrr        0.3.4      ✓ workflowsets 0.1.0 
+    ✓ recipes      0.1.16     ✓ yardstick    0.0.8 
+
+    ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
+    x purrr::discard()  masks scales::discard()
+    x dplyr::filter()   masks stats::filter()
+    x dplyr::lag()      masks stats::lag()
+    x yardstick::spec() masks readr::spec()
+    x recipes::step()   masks stats::step()
+    • Use tidymodels_prefer() to resolve common conflicts.
+
+``` r
+classifier <- 
+  decision_tree(mode = "classification") %>%
+  set_engine("rpart")
+```
+
+Note you may need to install `rpart` package for using the decision tree
+example above.
+
+### Fitting the Model
+
+To fit the model, we call the fit command.
+
+``` r
+model <- fit(classifier, formula = species ~ ., data = df_analysis)
+```
+
+We specify the classifier (The Decision Tree). We also provide a formula
+telling the fit function what we are predicting and what to use as
+predictors. For this formula we specify the `species` column as the
+output, and use the shorthand `species ~ .` to indicate that everything
+else should be used as the predictors.
+
+If we wanted to try and predict the species based solely on `island` and
+`sex` (a poor idea!), we would instead write `species ~ island + sex`.
+
+### Evaluate the model
+
+We now assess the model based on data it has not previously seen, and
+deduce the accuracy of our model.
+
+For this, we use our trained model to predict the species from the
+`df_assessment` data frame.
+
+``` r
+df_pred <- predict(model, new_data = df_assesment)
+
+df_pred
+```
+
+    # A tibble: 86 x 1
+       .pred_class
+       <fct>      
+     1 Adelie     
+     2 Adelie     
+     3 Chinstrap  
+     4 Adelie     
+     5 Adelie     
+     6 Adelie     
+     7 Adelie     
+     8 Adelie     
+     9 Adelie     
+    10 Adelie     
+    # … with 76 more rows
+
+Notice only the predictions are returned in a single column names
+`.pred_class`. It will be more useful to have the original
+`df_assessment` appended, so instead we can bind the columns together
+using `bind_cols`.
+
+``` r
+df_pred <-
+  df_assesment %>% 
+  bind_cols(
+    predict(model, new_data = df_assesment)
+  )
+  
+df_pred
+```
+
+    # A tibble: 86 x 9
+       island  bill_length_mm bill_depth_mm flipper_length_… body_mass_g sex    year
+       <chr>            <dbl>         <dbl>            <dbl>       <dbl> <chr> <dbl>
+     1 Torger…           40.3          18                195        3250 fema…  2007
+     2 Torger…           36.6          17.8              185        3700 fema…  2007
+     3 Torger…           46            21.5              194        4200 male   2007
+     4 Biscoe            35.9          19.2              189        3800 fema…  2007
+     5 Biscoe            38.2          18.1              185        3950 male   2007
+     6 Biscoe            40.6          18.6              183        3550 male   2007
+     7 Dream             37.2          18.1              178        3900 male   2007
+     8 Dream             39.8          19.1              184        4650 male   2007
+     9 Dream             37            16.9              185        3000 fema…  2007
+    10 Dream             39.6          18.8              190        4600 male   2007
+    # … with 76 more rows, and 2 more variables: species <fct>, .pred_class <fct>
+
+To test the accuracy of this model, we can pass the resulting data frame
+to `accuracy`.
+
+``` r
+df_pred %>% 
+  accuracy(truth = species, estimate = .pred_class)
+```
+
+    # A tibble: 1 x 3
+      .metric  .estimator .estimate
+      <chr>    <chr>          <dbl>
+    1 accuracy multiclass     0.953
+
+Abut 95% accuracy! Not bad!
+
+### Improving the model
+
+One of the great things about `tidymodels` (and under the hood
+`parsnip`), is the method of building the model is the same whichever
+model we try an run.
+
+For example, instead of a decision tree, why don’t we try a Random
+Forest?
+
+The following code chunk is identical to the commands above, except for
+the `classifer <-` line. We also need to install the Random Forest
+library `ranger` before running this code.
+
+``` r
+classifier <- 
+  rand_forest(mode = "classification") %>%
+  set_engine("ranger")
+
+model <- fit(classifier, formula = species ~ ., data = df_analysis)
+
+df_pred <-
+  df_assesment %>% 
+  bind_cols(
+    predict(model, new_data = df_assesment)
+  )
+
+df_pred %>% 
+  accuracy(truth = species, estimate = .pred_class)
+```
+
+    # A tibble: 1 x 3
+      .metric  .estimator .estimate
+      <chr>    <chr>          <dbl>
+    1 accuracy multiclass     0.988
+
+98%! Very good. Lastly (since it’s so easy!), lets tre a Gradient
+Boosted tree. Again, this code is identical except for the classifier.
+For this classifier you need to install the `xgboost` library.
+
+``` r
+classifier <- 
+  boost_tree(mode = "classification") %>%
+  set_engine("xgboost")
+
+model <- fit(classifier, formula = species ~ ., data = df_analysis)
+```
+
+    [11:26:43] WARNING: amalgamation/../src/learner.cc:1095: Starting in XGBoost 1.3.0, the default evaluation metric used with the objective 'multi:softprob' was changed from 'merror' to 'mlogloss'. Explicitly set eval_metric if you'd like to restore the old behavior.
+
+``` r
+df_pred <-
+  df_assesment %>% 
+  bind_cols(
+    predict(model, new_data = df_assesment)
+  )
+
+df_pred %>% 
+  accuracy(truth = species, estimate = .pred_class)
+```
+
+    # A tibble: 1 x 3
+      .metric  .estimator .estimate
+      <chr>    <chr>          <dbl>
+    1 accuracy multiclass         1
+
+100%!!!
+
+OK, so any Data Scientist should be wary of perfect accuracy, and we
+should thoroughly check these models using techniques like
+cross-validation. But hopefully this gives you an idea of the power of
+`tidymodels` and `parsnip`.
+
+There is lots of other features of `tidymodels` I haven’t covered here
+like pre-processing using the `recipies` packages, building ML pipelines
+using `workflow`, Auto ML type analysis using `workflowsets` and all the
+different sampling and cross-validation techniques. But common to all
+these packages that are part of `tidymodels` is they follow a common API
+structure and can be swapped in and out with little changes to your
+code.
